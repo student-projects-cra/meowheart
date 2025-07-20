@@ -190,4 +190,3 @@ function savePlayer(name, player) {
 
   sheet.appendRow([name, JSON.stringify(player)]);
 }
-

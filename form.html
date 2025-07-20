@@ -333,19 +333,21 @@
 		</div>
 	</div>
 
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-			function preventFormSubmit(){
-    var forms=document.querySelectorAll('form');
-    for (var i=0;i<forms.length;i++){
-      forms[i].addEventListener('submit',function(event){
+  function preventFormSubmit() {
+    var forms = document.querySelectorAll('form');
+    for (var i = 0; i < forms.length; i++) {
+      forms[i].addEventListener('submit', function(event) {
         event.preventDefault();
+        handleFormSubmit(event.target);
       });
     }
   }
-window.addEventListener('load',preventFormSubmit);
+  window.addEventListener('load', preventFormSubmit);
 
-function handleFormSubmit(formObject) {
-    // ✅ แปลง form เป็น object (ไม่เปลี่ยน form เดิม)
+  async function handleFormSubmit(formObject) {
+    // แปลง form เป็น object
     const formData = new FormData(formObject);
     const obj = {};
     formData.forEach((value, key) => {
@@ -355,9 +357,20 @@ function handleFormSubmit(formObject) {
     localStorage.setItem("first_name", obj.first_name);
     localStorage.setItem("last_name", obj.last_name);
 
-    // ✅ เรียก Google Apps Script พร้อม callback
-    google.script.run.withSuccessHandler(function(response) {
-      if (response.status === "duplicate") {
+    try {
+      // เรียก fetch POST ไปที่ GAS API endpoint (แก้ YOUR_DEPLOY_ID เป็นจริง)
+      const response = await fetch('https://script.google.com/macros/s/YOUR_DEPLOY_ID/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'processForm',
+          formObject: obj
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.status === "duplicate") {
         Swal.fire({
           icon: 'warning',
           title: 'ข้อมูลนี้เคยกรอกแล้ว',
@@ -365,8 +378,8 @@ function handleFormSubmit(formObject) {
           showConfirmButton: false,
           timer: 1800
         });
-      } else {
-        formObject.reset(); // reset ฟอร์ม
+      } else if (data.status === "success") {
+        formObject.reset();
         Swal.fire({
           position: 'center',
           icon: 'success',
@@ -374,12 +387,16 @@ function handleFormSubmit(formObject) {
           showConfirmButton: false,
           timer: 1500
         });
+      } else {
+        throw new Error('Unknown response status');
       }
-    }).processForm(obj);
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: 'กรุณาลองใหม่อีกครั้ง',
+      });
+    }
   }
 </script>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-</body>
-
-</html>

@@ -319,9 +319,9 @@ function mergeQuests(player) {
   // แปลง map กลับเป็น array
   player.quests = Array.from(questMap.values());
 
-  const playerName = localStorage.getItem("playerName");
-   if (playerName) {
-  google.script.run.savePlayer(playerName, player); // ✅ บันทึก player ที่ merge แล้ว
+    const playerName = localStorage.getItem("playerName");
+  if (playerName && window.player) {
+    savePlayerData(playerName, window.player);
   }
 }
 
@@ -840,9 +840,9 @@ function craftHerbalMenu(menuId) {
 
   showTemporaryMessage(`ได้ "${menu.name}" แล้ว!`, 2500);
 
-  const playerName = localStorage.getItem("playerName");
-  if (playerName) {
-    google.script.run.savePlayer(playerName, player);
+    const playerName = localStorage.getItem("playerName");
+  if (playerName && window.player) {
+    savePlayerData(playerName, window.player);
   }
 
   openHerbalKitchen();
@@ -1317,9 +1317,9 @@ function plant(plotIndex, slotIndex, type, isSeed = false) {
     plantedAt: Date.now()
   };
 
-  const playerName = localStorage.getItem("playerName");
-  if (playerName) {
-    google.script.run.savePlayer(playerName, player);
+   const playerName = localStorage.getItem("playerName");
+  if (playerName && window.player) {
+    savePlayerData(playerName, window.player);
   }
 
   renderPlots();
@@ -1659,9 +1659,9 @@ function buySeed(type) {
 
   showTemporaryMessage(`ซื้อ ${thaiNames[type] || type} เรียบร้อย!`);
 
-  const playerName = localStorage.getItem("playerName");
-  if (playerName) {
-    google.script.run.savePlayer(playerName, player);
+    const playerName = localStorage.getItem("playerName");
+  if (playerName && window.player) {
+    savePlayerData(playerName, window.player);
   }
 }
 
@@ -1731,8 +1731,10 @@ function openSellPopup() {
     checkQuests();
     showTemporaryMessage(`ขาย ${qty} ผล ${thaiNames[item] || item} ได้ ${qty * price}฿`);
 
-    const playerName = localStorage.getItem("playerName");
-    if (playerName) google.script.run.savePlayer(playerName, player);
+      const playerName = localStorage.getItem("playerName");
+  if (playerName && window.player) {
+    savePlayerData(playerName, window.player);
+  }
 
     openSellPopup(); // refresh
   };
@@ -1816,9 +1818,9 @@ function confirmBuyLand(plotIndex) {
   closePopup();
   showMessage("ซื้อที่ดินสำเร็จ! ปลูกผักได้เลย");
 
-  const playerName = localStorage.getItem("playerName");
-  if (playerName) {
-    google.script.run.savePlayer(playerName, player);
+    const playerName = localStorage.getItem("playerName");
+  if (playerName && window.player) {
+    savePlayerData(playerName, window.player);
   }
 }
 
@@ -1880,9 +1882,9 @@ function completeQuest(id) {
   quest.rewardCoin = 0;
 
 
-  const playerName = localStorage.getItem("playerName");
-  if (playerName) {
-    google.script.run.savePlayer(playerName, player);
+    const playerName = localStorage.getItem("playerName");
+  if (playerName && window.player) {
+    savePlayerData(playerName, window.player);
   }
 
   renderPlots();
@@ -2043,10 +2045,10 @@ function submitFreeCoinAnswer() {
     checkQuests();
     showMessage("รับเหรียญฟรี 20 บาทแล้ว!");
 
-    const playerName = localStorage.getItem("playerName");
-    if (playerName) {
-      google.script.run.savePlayer(playerName, player);
-    }
+     const playerName = localStorage.getItem("playerName");
+  if (playerName && window.player) {
+    savePlayerData(playerName, window.player);
+  }
   } else {
     showMessage("ตอบผิดจ้า ลองใหม่นะ");
   }
@@ -2254,70 +2256,7 @@ document.getElementById("popup-overlay").style.display = "none";
           scrollArea.scrollTo({ left: currentPage * farmWidth, behavior: "smooth" });
         }
       }
-
-function resetPlayerData() {
-  if (confirm("ต้องการรีเซตข้อมูลเกมหรือไม่? ข้อมูลจะหายทั้งหมด!")) {
-    // รีเซตข้อมูล player เป็นค่าเริ่มต้นเหมือนตอนเริ่มเกม
-    player = {
-      coin: 100,
-      level: 1,
-      exp: 0,
-      inventory: {
-  rice: 0,
-  riceSeed: 0,
-  corn: 0,
-  cornSeed: 0,
-  lettuce: 0,
-  lettuceSeed: 0,
-  pumpkin: 0,
-  pumpkinSeed: 0,
-  garlic: 0,
-  garlicSeed: 0,
-  tomato: 0,
-  tomatoSeed: 0,
-  chili: 0,
-  chiliSeed: 0,
-  eggplant: 0,
-  eggplantSeed: 0,
-  carrot: 0,
-  carrotSeed: 0,
-  mushroom: 0,
-  mushroomSeed: 0,
-  potato: 0,
-  potatoSeed: 0,
-  cabbage: 0,
-  cabbageSeed: 0,
-  broccoli: 0,
-  broccoliSeed: 0,
-      },
-      dailySalesCount: 0,      
-      lastSellDate: null,       
-      plots: Array.from({ length: 24 }, () => ({
-        unlockedSlots: 1,
-        planted: [false, false, false, false]
-      }))
-    };
-
-    freeCoinCount = 0;
-    quests.forEach(q => {
-      q.done = false;
-      q.rewardCoin = q.rewardCoin || 0;
-      q.rewardExp = q.rewardExp || 0;
-    });
-
-    // อัพเดตหน้า UI ใหม่
-    updateHUD();
-    renderPlots();
-
-    const playerName = localStorage.getItem("playerName");
-    if (playerName) {
-      google.script.run.savePlayer(playerName, player);
-    }
-    
-    showMessage("รีเซตข้อมูลเกมเรียบร้อย!");
-  }
-}
-
+      
 function showMessage(msg) {
   const popup = document.getElementById("popup");
   const content = document.getElementById("popup-content");
@@ -2338,175 +2277,60 @@ function showMessage(msg) {
   updateGameData();
 }
 
+const GAS_URL = "https://script.google.com/macros/s/AKfycbw1Zo0ElNHWwlqWs2mjYATqem_rUkDuGtYEc5WIJCOtvQxM_ROYVCl_ESR2Z-b18uUK/exec"; // แก้เป็น URL จริง
+
+// โหลดข้อมูลผู้เล่นจาก backend ด้วย fetch
+function fetchPlayerData(name) {
+  console.log("เรียกชื่อผู้เล่น:", name);
+  return fetch(GAS_URL + '?action=getOrCreatePlayer&name=' + encodeURIComponent(name))
+    .then(response => {
+      if (!response.ok) throw new Error('โหลดข้อมูลล้มเหลว');
+      return response.json();
+    })
+    .then(data => {
+      window.player = data;
+      init(data); // เรียกฟังก์ชัน init() เมื่อได้ข้อมูลแล้ว
+    })
+    .catch(err => {
+      console.error("โหลดข้อมูลล้มเหลว:", err);
+      throw err;
+    });
+}
+
+// บันทึกข้อมูลผู้เล่นด้วย fetch POST
+function savePlayerData(name, playerData) {
+  return fetch(GAS_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      action: 'savePlayer',
+      name: name,
+      player: playerData
+    }),
+  })
+  .then(response => {
+    if (!response.ok) throw new Error('บันทึกข้อมูลล้มเหลว');
+    return response.json();
+  })
+  .catch(err => {
+    console.error("บันทึกข้อมูลล้มเหลว:", err);
+  });
+}
+
+// แก้ updateGameData() ให้เรียก savePlayerData แทน
 function updateGameData() {
-  // บันทึกข้อมูลทันที
   const playerName = localStorage.getItem("playerName");
-  if (playerName) {
-    google.script.run.savePlayer(playerName, window.player);
+  if (playerName && window.player) {
+    savePlayerData(playerName, window.player);
   }
-} 
+}
 
-window.onload = () => {
-const neighborIcon = document.getElementById("neighbor-icon");
-  if (neighborIcon) {
-    neighborIcon.addEventListener("click", () => {
-      if (!currentVisitingCat) {
-        showMessage("ยังไม่มีแมวมาเยี่ยมตอนนี้");
-        return;
-      }
-      openNeighborPopup();
-    });
-  } else {
-    console.warn("ไม่พบ element id='neighbor-icon' ใน DOM");
-  }
-
-
-  const bgm = document.getElementById("bg-music");
-  const startBtn = document.getElementById("startGameBtn");
-  const progressBar = document.getElementById("progress-bar");
-  const loadingContent = document.getElementById("loading-content");
-  const settingsBtn = document.getElementById("settingsBtn");
-
-  // ⚙️ ปุ่มตั้งค่า
-  if (settingsBtn) {
-    settingsBtn.addEventListener("click", openSettingsPopup);
-  }
-
-  // ป้องกัน error หาก #level ไม่มี
-  const levelBtn = document.getElementById("level");
-  if (levelBtn) {
-    levelBtn.addEventListener("click", showExpAlert);
-  }
-
-  const img = new Image();
-  img.src = "https://i.postimg.cc/WbGrTm0k/bg.png";
-  img.onload = () => {
-    document.getElementById("loading-screen").style.backgroundImage = "url('https://i.postimg.cc/WbGrTm0k/bg.png')";
-  };
-
-  let dataReady = false;
-  let progress = 0;
-  let playerName = localStorage.getItem("playerName");
-
-  bgm.muted = true;
-
-  // โหลดข้อมูล
-  if (playerName) {
-    fetchPlayerData(playerName).then(() => {
-      dataReady = true;
-    });
-  } else {
-    dataReady = true;
-  }
-
-  // Progress bar จำลอง
-  const interval = setInterval(() => {
-    if (progress < 100) {
-      progress += 2 + Math.random() * 4;
-      progressBar.style.width = `${Math.min(progress, 100)}%`;
-    }
-
-    if (progress >= 100 && dataReady) {
-      clearInterval(interval);
-      loadingContent.style.display = "none";
-      startBtn.style.display = "block";
-    }
-  }, 100);
-
-  startBtn.addEventListener("click", () => {
-    bgm.muted = false;
-    bgm.volume = 0.3;
-    bgm.play().catch(() => {});
-
-    document.getElementById("loading-screen").style.display = "none";
-
-    if (playerName) {
-      fetchPlayerData(playerName).then(() => {
-        renderPlots();
-        scheduleNextCatVisit();
-        if (!plotIntervalStarted) {
-          plotIntervalStarted = true;
-          setInterval(renderPlots, 1000);
-        }
-      });
-    } else {
-      showNamePopup();
-    }
-  });
-
-  document.addEventListener('visibilitychange', () => {
-    if (!bgm) return;
-    if (document.hidden) {
-      bgm.pause();
-    } else {
-      if (!bgm.muted) {
-        bgm.play().catch(() => {});
-      }
-    }
-  });
-};
-  
-
+// แก้ window.onbeforeunload ให้เรียก savePlayerData
 window.onbeforeunload = () => {
   const playerName = localStorage.getItem("playerName");
   if (playerName && window.player) {
-    google.script.run.savePlayer(playerName, window.player);
+    savePlayerData(playerName, window.player);
   }
-};  
-
-function showNamePopup() {
-  const popup = document.getElementById('name-popup');
-  popup.style.display = 'flex';
-
-  const input = document.getElementById('nameInput');
-  input.value = '';
-  input.focus();
-
-  const btn = document.getElementById('btnSaveName');
-  btn.onclick = () => {
-    const name = input.value.trim();
-    if (name.length === 0) {
-      showTemporaryMessage('กรุณากรอกชื่อผู้เล่น');
-      input.focus();
-      return;
-    }
-
-    localStorage.setItem('playerName', name);
-    playerName = name;
-    popup.style.display = 'none';
-
-    fetchPlayerData(name).then(() => {
-      renderPlots();
-      scheduleNextCatVisit();
-      if (!plotIntervalStarted) {
-       plotIntervalStarted = true;
-      if (!plotIntervalStarted) {
-       plotIntervalStarted = true;
-       setInterval(renderPlots, 1000);
-      }
-      }
-    });
-  };
-}
-
-// 📌 ดึงข้อมูลผู้เล่นจาก Google Sheet
-function fetchPlayerData(name) {
-  console.log("เรียกชื่อผู้เล่น:", name);
-  return new Promise((resolve, reject) => {
-    google.script.run
-      .withSuccessHandler(function (data) {
-        window.player = data;
-        init(data); // เรียกฟังก์ชัน init() เมื่อได้ข้อมูลแล้ว
-        resolve();  // ✅ บอกว่าโหลดเสร็จแล้ว
-      })
-      .withFailureHandler(function (err) {
-        console.error("โหลดข้อมูลล้มเหลว:", err);
-        reject(err); // ✅ หรือจะ resolve(); ก็ได้ ถ้าไม่อยากให้เกมค้าง
-      })
-      .getOrCreatePlayer(name);
-  });
-}
-
-    </script>
+};
   </body>
 </html>
